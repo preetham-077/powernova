@@ -12,11 +12,11 @@ const Footer = () => {
               <span className="text-xl font-heading font-bold">POWERNOVA</span>
             </Link>
             <p className="text-sm text-secondary-foreground/60">
-              Everything you need, delivered in minutes. Your one-stop shop for millions of products.
+              Your premium electronics superstore. Top gadgets delivered in minutes at unbeatable prices.
             </p>
           </div>
           {[
-            { title: "Shop", links: ["Electronics", "Fashion", "Home & Kitchen", "Beauty"] },
+            { title: "Shop", links: ["Smartphones", "Laptops", "Headphones", "Cameras"] },
             { title: "Help", links: ["Track Order", "Returns", "FAQs", "Contact Us"] },
             { title: "Company", links: ["About Us", "Careers", "Blog", "Press"] },
           ].map((section) => (
