@@ -35,7 +35,7 @@ const Header = () => {
             <div className="flex w-full rounded-lg overflow-hidden border-2 border-primary/50 focus-within:border-primary transition-colors">
               <input
                 type="text"
-                placeholder="Search for products, brands and more..."
+                placeholder="Search smartphones, laptops, gadgets..."
                 className="flex-1 px-4 py-2.5 text-sm bg-card text-card-foreground outline-none"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -79,11 +79,11 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Category bar */}
+      {/* Category bar - electronics focused */}
       <div className="bg-secondary border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-6 py-2 overflow-x-auto scrollbar-none text-sm">
-            {["All", "Electronics", "Fashion", "Home", "Beauty", "Sports", "Deals", "New Arrivals"].map((cat) => (
+            {["All", "Smartphones", "Laptops", "Headphones", "Smartwatches", "Tablets", "Cameras", "Speakers", "Gaming", "Deals"].map((cat) => (
               <Link
                 key={cat}
                 to={cat === "All" ? "/" : `/?category=${cat.toLowerCase()}`}

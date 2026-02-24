@@ -1,48 +1,158 @@
 import { useCart } from "@/context/CartContext";
-import { useState } from "react";
-import { ArrowLeft, CreditCard, Zap, CheckCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, CreditCard, Zap, CheckCircle, MapPin, Package, Truck, QrCode, Smartphone } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import { motion, AnimatePresence } from "framer-motion";
+import { QRCodeSVG } from "qrcode.react";
+import DeliveryTracker from "@/components/DeliveryTracker";
 
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
-  const [step, setStep] = useState<"details" | "success">("details");
+  const [step, setStep] = useState<"details" | "payment" | "tracking">("details");
+  const [paymentMethod, setPaymentMethod] = useState("upi");
+  const [paymentDone, setPaymentDone] = useState(false);
+  const [orderId] = useState(() => `PN-${Date.now().toString(36).toUpperCase()}`);
 
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    setStep("success");
-    clearCart();
+    setStep("payment");
   };
 
-  if (step === "success") {
+  const handlePaymentComplete = () => {
+    setPaymentDone(true);
+    clearCart();
+    setTimeout(() => setStep("tracking"), 1500);
+  };
+
+  if (step === "tracking") {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <CartDrawer />
-        <main className="container mx-auto px-4 py-20">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-md mx-auto text-center"
-          >
-            <div className="w-20 h-20 rounded-full bg-success mx-auto flex items-center justify-center mb-6">
-              <CheckCircle className="h-10 w-10 text-primary-foreground" />
+        <main className="container mx-auto px-4 py-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-heading font-bold text-foreground">Order Confirmed!</h1>
+                  <p className="text-sm text-muted-foreground">Order ID: {orderId}</p>
+                </div>
+              </div>
+
+              {/* Order status steps */}
+              <div className="bg-card border border-border rounded-xl p-6 mb-6">
+                <h2 className="font-heading font-semibold text-lg text-card-foreground mb-4">Order Status</h2>
+                <OrderTimeline />
+              </div>
+
+              {/* Live delivery map */}
+              <div className="bg-card border border-border rounded-xl p-6 mb-6">
+                <h2 className="font-heading font-semibold text-lg text-card-foreground mb-4 flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  Live Delivery Tracking
+                </h2>
+                <DeliveryTracker />
+              </div>
+
+              <div className="text-center">
+                <Link
+                  to="/"
+                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-heading font-semibold hover:opacity-90 transition-opacity"
+                >
+                  Continue Shopping
+                </Link>
+              </div>
             </div>
-            <h1 className="text-3xl font-heading font-bold text-foreground mb-3">Order Placed!</h1>
-            <p className="text-muted-foreground mb-2">Your order has been confirmed and will be delivered in minutes.</p>
-            <p className="text-sm text-primary font-medium mb-8 flex items-center justify-center gap-1">
-              <Zap className="h-4 w-4" /> Estimated delivery: 10-15 minutes
-            </p>
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-heading font-semibold hover:opacity-90 transition-opacity"
-            >
-              Continue Shopping
-            </Link>
           </motion.div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (step === "payment") {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <CartDrawer />
+        <main className="container mx-auto px-4 py-8">
+          <button onClick={() => setStep("details")} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-6">
+            <ArrowLeft className="h-4 w-4" />
+            Back to details
+          </button>
+
+          <div className="max-w-lg mx-auto">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-2xl p-8 text-center">
+              <AnimatePresence mode="wait">
+                {!paymentDone ? (
+                  <motion.div key="qr" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <QrCode className="h-8 w-8 text-primary" />
+                    </div>
+                    <h2 className="text-2xl font-heading font-bold text-card-foreground mb-2">
+                      {paymentMethod === "upi" ? "Scan QR to Pay" : "Complete Payment"}
+                    </h2>
+                    <p className="text-muted-foreground mb-6">
+                      Amount: <span className="font-heading font-bold text-foreground text-xl">₹{totalPrice.toLocaleString()}</span>
+                    </p>
+
+                    {paymentMethod === "upi" ? (
+                      <div className="bg-background rounded-xl p-6 mb-6 inline-block">
+                        <QRCodeSVG
+                          value={`upi://pay?pa=powernova@upi&pn=POWERNOVA&am=${totalPrice}&cu=INR&tn=Order-${orderId}`}
+                          size={220}
+                          bgColor="hsl(210, 25%, 97%)"
+                          fgColor="hsl(210, 40%, 8%)"
+                          level="H"
+                          includeMargin
+                        />
+                      </div>
+                    ) : (
+                      <div className="bg-background rounded-xl p-6 mb-6 space-y-4">
+                        <input placeholder="Card Number" className="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+                        <div className="grid grid-cols-2 gap-4">
+                          <input placeholder="MM/YY" className="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+                          <input placeholder="CVV" className="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-xs text-muted-foreground mb-6">
+                      {paymentMethod === "upi" ? "Open any UPI app to scan and pay" : "Your card details are encrypted and secure"}
+                    </p>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handlePaymentComplete}
+                      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-heading font-semibold text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                    >
+                      <Zap className="h-5 w-5" />
+                      {paymentMethod === "upi" ? "I've Completed Payment" : `Pay ₹${totalPrice.toLocaleString()}`}
+                    </motion.button>
+                  </motion.div>
+                ) : (
+                  <motion.div key="success" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}>
+                    <motion.div
+                      animate={{ rotate: [0, 10, -10, 0] }}
+                      transition={{ duration: 0.5 }}
+                      className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4"
+                    >
+                      <CheckCircle className="h-10 w-10 text-primary" />
+                    </motion.div>
+                    <h2 className="text-2xl font-heading font-bold text-card-foreground mb-2">Payment Successful!</h2>
+                    <p className="text-muted-foreground">Preparing your delivery...</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </div>
         </main>
         <Footer />
       </div>
@@ -89,10 +199,18 @@ const Checkout = () => {
                   Payment Method
                 </h2>
                 <div className="space-y-3">
-                  {["Credit / Debit Card", "UPI Payment", "Cash on Delivery"].map((method, i) => (
-                    <label key={method} className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-primary/30 cursor-pointer transition-colors">
-                      <input type="radio" name="payment" defaultChecked={i === 0} className="accent-primary" />
-                      <span className="text-sm font-medium text-card-foreground">{method}</span>
+                  {[
+                    { id: "upi", label: "UPI / QR Code Payment", icon: Smartphone, desc: "Scan QR code with any UPI app" },
+                    { id: "card", label: "Credit / Debit Card", icon: CreditCard, desc: "Visa, Mastercard, RuPay" },
+                    { id: "cod", label: "Cash on Delivery", icon: Package, desc: "Pay when you receive" },
+                  ].map((method) => (
+                    <label key={method.id} className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === method.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'}`}>
+                      <input type="radio" name="payment" value={method.id} checked={paymentMethod === method.id} onChange={() => setPaymentMethod(method.id)} className="accent-primary" />
+                      <method.icon className="h-5 w-5 text-primary shrink-0" />
+                      <div>
+                        <span className="text-sm font-medium text-card-foreground">{method.label}</span>
+                        <p className="text-xs text-muted-foreground">{method.desc}</p>
+                      </div>
                     </label>
                   ))}
                 </div>
@@ -103,7 +221,7 @@ const Checkout = () => {
                 className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-heading font-semibold text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
               >
                 <Zap className="h-5 w-5" />
-                Place Order — ₹{totalPrice.toLocaleString()}
+                Proceed to Payment — ₹{totalPrice.toLocaleString()}
               </button>
             </form>
 
@@ -112,9 +230,13 @@ const Checkout = () => {
               <h2 className="font-heading font-semibold text-lg text-card-foreground mb-4">Order Summary</h2>
               <div className="space-y-3 mb-4">
                 {items.map((item) => (
-                  <div key={item.product.id} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground line-clamp-1 flex-1">{item.product.name} × {item.quantity}</span>
-                    <span className="font-medium text-card-foreground ml-2">₹{(item.product.price * item.quantity).toLocaleString()}</span>
+                  <div key={item.product.id} className="flex gap-3 items-center">
+                    <img src={item.product.image} alt={item.product.name} className="w-12 h-12 rounded-lg object-cover" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm text-card-foreground line-clamp-1">{item.product.name}</span>
+                      <span className="text-xs text-muted-foreground">Qty: {item.quantity}</span>
+                    </div>
+                    <span className="font-medium text-sm text-card-foreground">₹{(item.product.price * item.quantity).toLocaleString()}</span>
                   </div>
                 ))}
               </div>
@@ -133,6 +255,51 @@ const Checkout = () => {
         )}
       </main>
       <Footer />
+    </div>
+  );
+};
+
+const OrderTimeline = () => {
+  const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    const timers = [
+      setTimeout(() => setActiveStep(1), 2000),
+      setTimeout(() => setActiveStep(2), 5000),
+      setTimeout(() => setActiveStep(3), 9000),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  const steps = [
+    { icon: CheckCircle, label: "Order Confirmed", time: "Just now" },
+    { icon: Package, label: "Packing Your Order", time: "~2 min" },
+    { icon: Truck, label: "Out for Delivery", time: "~5 min" },
+    { icon: MapPin, label: "Arriving Soon", time: "~10 min" },
+  ];
+
+  return (
+    <div className="space-y-0">
+      {steps.map((s, i) => (
+        <div key={s.label} className="flex gap-4 items-start">
+          <div className="flex flex-col items-center">
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: i <= activeStep ? 1 : 0.8 }}
+              className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors duration-500 ${i <= activeStep ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+            >
+              <s.icon className="h-5 w-5" />
+            </motion.div>
+            {i < steps.length - 1 && (
+              <div className={`w-0.5 h-10 transition-colors duration-500 ${i < activeStep ? 'bg-primary' : 'bg-border'}`} />
+            )}
+          </div>
+          <div className="pt-2 pb-4">
+            <p className={`text-sm font-medium transition-colors ${i <= activeStep ? 'text-foreground' : 'text-muted-foreground'}`}>{s.label}</p>
+            <p className="text-xs text-muted-foreground">{s.time}</p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
