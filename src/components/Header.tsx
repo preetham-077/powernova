@@ -16,7 +16,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <Zap className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-heading font-bold text-nav-foreground">
+            <span className="text-2xl font-logo font-bold text-nav-foreground tracking-wider">
               POWER<span className="text-gradient-brand">NOVA</span>
             </span>
           </Link>
@@ -48,6 +48,12 @@ const Header = () => {
 
           {/* Right actions */}
           <div className="flex items-center gap-4">
+            {/* Founder credit */}
+            <div className="hidden lg:block text-right">
+              <p className="text-[10px] uppercase tracking-widest text-nav-foreground/40">Founder</p>
+              <p className="text-xs font-heading font-semibold text-primary">CHANDAN & PREETHAM</p>
+            </div>
+
             <button className="hidden md:flex items-center gap-1 text-nav-foreground/70 hover:text-nav-foreground transition-colors text-sm">
               <User className="h-5 w-5" />
               <span className="font-medium">Account</span>
@@ -79,7 +85,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Category bar - electronics focused */}
+      {/* Category bar */}
       <div className="bg-secondary border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-6 py-2 overflow-x-auto scrollbar-none text-sm">

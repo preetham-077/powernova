@@ -9,10 +9,13 @@ const Footer = () => {
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
               <Zap className="h-6 w-6 text-primary" />
-              <span className="text-xl font-heading font-bold">POWERNOVA</span>
+              <span className="text-xl font-logo font-bold tracking-wider">POWERNOVA</span>
             </Link>
-            <p className="text-sm text-secondary-foreground/60">
-              Your premium electronics superstore. Top gadgets delivered in minutes at unbeatable prices.
+            <p className="text-sm text-secondary-foreground/60 mb-3">
+              Your premium electronics superstore. 100+ gadgets delivered in minutes.
+            </p>
+            <p className="text-xs text-primary font-heading font-semibold">
+              Founded by CHANDAN & PREETHAM
             </p>
           </div>
           {[
@@ -35,7 +38,7 @@ const Footer = () => {
           ))}
         </div>
         <div className="border-t border-secondary-foreground/10 mt-10 pt-6 text-center text-sm text-secondary-foreground/40">
-          © 2026 POWERNOVA. All rights reserved.
+          © 2026 POWERNOVA. All rights reserved. | Founded by Chandan & Preetham
         </div>
       </div>
     </footer>
