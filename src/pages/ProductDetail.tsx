@@ -1,7 +1,7 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { products } from "@/data/products";
 import { useCart } from "@/context/CartContext";
-import { Star, Clock, ShoppingCart, ArrowLeft, Zap, Shield, RotateCcw } from "lucide-react";
+import { Star, Clock, ShoppingCart, ArrowLeft, Zap, Shield, RotateCcw, Tag } from "lucide-react";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -9,12 +9,13 @@ import CartDrawer from "@/components/CartDrawer";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { addToCart } = useCart();
   const product = products.find((p) => p.id === id);
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-muted-foreground">Product not found.</p>
       </div>
     );
@@ -23,6 +24,11 @@ const ProductDetail = () => {
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
+
+  const handleBuyNow = () => {
+    addToCart(product);
+    navigate("/checkout");
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,7 +42,7 @@ const ProductDetail = () => {
 
         <div className="grid md:grid-cols-2 gap-10">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative">
-            <img src={product.image} alt={product.name} className="w-full rounded-2xl object-cover aspect-square" />
+            <img src={product.image} alt={product.name} className="w-full rounded-2xl object-cover aspect-square bg-card" />
             {product.badge && (
               <span className="absolute top-4 left-4 badge-deal text-sm font-bold px-3 py-1.5 rounded-lg">
                 {product.badge}
@@ -65,6 +71,13 @@ const ProductDetail = () => {
               )}
             </div>
 
+            {discount >= 15 && (
+              <div className="inline-flex items-center gap-1 bg-primary/10 text-primary text-sm font-semibold px-3 py-1.5 rounded-lg mb-4">
+                <Tag className="h-4 w-4" />
+                Special Offer: Save ₹{((product.originalPrice || 0) - product.price).toLocaleString()}!
+              </div>
+            )}
+
             <p className="text-muted-foreground mb-6">{product.description}</p>
 
             <div className="flex items-center gap-2 text-sm text-primary font-medium mb-6 bg-primary/10 p-3 rounded-lg">
@@ -85,6 +98,7 @@ const ProductDetail = () => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={handleBuyNow}
                 className="flex-1 flex items-center justify-center gap-2 bg-accent text-accent-foreground py-4 rounded-xl font-heading font-semibold text-lg hover:opacity-90 transition-opacity"
               >
                 <Zap className="h-5 w-5" />

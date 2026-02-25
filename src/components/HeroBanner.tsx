@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Zap, Clock, Shield, Cpu } from "lucide-react";
+import { Zap, Clock, Shield, Cpu, Percent } from "lucide-react";
 
 const HeroBanner = () => {
   return (
@@ -22,23 +22,27 @@ const HeroBanner = () => {
               <span className="text-sm font-medium text-primary">Lightning Fast Delivery</span>
             </div>
 
-            {/* Stylish POWERNOVA name centered */}
+            {/* Stylish POWERNOVA name centered with Orbitron font */}
             <motion.h1
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, type: "spring" }}
-              className="text-6xl md:text-8xl font-heading font-bold leading-none mb-6 tracking-tight"
+              className="text-6xl md:text-8xl lg:text-9xl font-logo font-black leading-none mb-6 tracking-[0.15em]"
             >
-              <span className="text-gradient-brand">POWER</span>
+              <span className="text-gradient-stylish">POWER</span>
               <span className="text-nav-foreground">NOVA</span>
             </motion.h1>
 
-            <p className="text-xl md:text-2xl text-nav-foreground/70 mb-4 font-heading">
+            <p className="text-xl md:text-2xl text-nav-foreground/70 mb-2 font-heading">
               Your <span className="text-primary font-semibold">Electronics</span> Superstore
             </p>
 
+            <p className="text-sm text-nav-foreground/40 mb-2 font-heading tracking-wider">
+              FOUNDED BY <span className="text-primary font-semibold">CHANDAN & PREETHAM</span>
+            </p>
+
             <p className="text-base text-nav-foreground/50 mb-8 max-w-lg mx-auto">
-              Premium gadgets — smartphones, laptops, cameras & more — delivered to your door in minutes at unbeatable prices.
+              100+ premium gadgets — smartphones, laptops, cameras & more — delivered to your door in minutes at unbeatable prices.
             </p>
 
             <div className="flex flex-wrap gap-4 justify-center mb-10">
@@ -49,13 +53,14 @@ const HeroBanner = () => {
                 className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3.5 rounded-lg font-heading font-semibold text-lg shadow-lg hover:opacity-90 transition-opacity"
               >
                 <Cpu className="h-5 w-5" />
-                Explore Gadgets
+                Explore 100+ Gadgets
               </motion.a>
               <a
-                href="#categories"
-                className="inline-flex items-center gap-2 border border-nav-foreground/20 text-nav-foreground px-8 py-3.5 rounded-lg font-heading font-semibold text-lg hover:border-primary/50 hover:text-primary transition-colors"
+                href="#deals"
+                className="inline-flex items-center gap-2 border border-primary/50 text-primary px-8 py-3.5 rounded-lg font-heading font-semibold text-lg hover:bg-primary/10 transition-colors"
               >
-                Browse Categories
+                <Percent className="h-5 w-5" />
+                Today's Deals
               </a>
             </div>
           </motion.div>

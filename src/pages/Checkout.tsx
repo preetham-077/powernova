@@ -15,6 +15,10 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState("upi");
   const [paymentDone, setPaymentDone] = useState(false);
   const [orderId] = useState(() => `PN-${Date.now().toString(36).toUpperCase()}`);
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvv, setCardCvv] = useState("");
+  const [cardName, setCardName] = useState("");
 
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +30,9 @@ const Checkout = () => {
     clearCart();
     setTimeout(() => setStep("tracking"), 1500);
   };
+
+  // UPI QR value with the real phone number
+  const upiQrValue = `upi://pay?pa=8147850160@upi&pn=POWERNOVA&am=${totalPrice}&cu=INR&tn=Order-${orderId}`;
 
   if (step === "tracking") {
     return (
@@ -45,13 +52,11 @@ const Checkout = () => {
                 </div>
               </div>
 
-              {/* Order status steps */}
               <div className="bg-card border border-border rounded-xl p-6 mb-6">
                 <h2 className="font-heading font-semibold text-lg text-card-foreground mb-4">Order Status</h2>
                 <OrderTimeline />
               </div>
 
-              {/* Live delivery map */}
               <div className="bg-card border border-border rounded-xl p-6 mb-6">
                 <h2 className="font-heading font-semibold text-lg text-card-foreground mb-4 flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-primary" />
@@ -91,50 +96,106 @@ const Checkout = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-2xl p-8 text-center">
               <AnimatePresence mode="wait">
                 {!paymentDone ? (
-                  <motion.div key="qr" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <motion.div key="payment-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                      <QrCode className="h-8 w-8 text-primary" />
+                      {paymentMethod === "upi" ? <QrCode className="h-8 w-8 text-primary" /> : <CreditCard className="h-8 w-8 text-primary" />}
                     </div>
                     <h2 className="text-2xl font-heading font-bold text-card-foreground mb-2">
-                      {paymentMethod === "upi" ? "Scan QR to Pay" : "Complete Payment"}
+                      {paymentMethod === "upi" ? "Scan QR to Pay via UPI" : paymentMethod === "card" ? "Enter Card Details" : "Cash on Delivery"}
                     </h2>
                     <p className="text-muted-foreground mb-6">
                       Amount: <span className="font-heading font-bold text-foreground text-xl">₹{totalPrice.toLocaleString()}</span>
                     </p>
 
-                    {paymentMethod === "upi" ? (
-                      <div className="bg-background rounded-xl p-6 mb-6 inline-block">
-                        <QRCodeSVG
-                          value={`upi://pay?pa=powernova@upi&pn=POWERNOVA&am=${totalPrice}&cu=INR&tn=Order-${orderId}`}
-                          size={220}
-                          bgColor="hsl(210, 25%, 97%)"
-                          fgColor="hsl(210, 40%, 8%)"
-                          level="H"
-                          includeMargin
-                        />
-                      </div>
-                    ) : (
-                      <div className="bg-background rounded-xl p-6 mb-6 space-y-4">
-                        <input placeholder="Card Number" className="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
-                        <div className="grid grid-cols-2 gap-4">
-                          <input placeholder="MM/YY" className="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
-                          <input placeholder="CVV" className="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+                    {paymentMethod === "upi" && (
+                      <div className="space-y-4">
+                        <div className="bg-background rounded-xl p-6 inline-block">
+                          <QRCodeSVG
+                            value={upiQrValue}
+                            size={240}
+                            bgColor="hsl(45, 20%, 92%)"
+                            fgColor="hsl(40, 10%, 15%)"
+                            level="H"
+                            includeMargin
+                          />
                         </div>
+                        <div className="bg-muted rounded-lg p-3">
+                          <p className="text-xs text-muted-foreground">UPI ID</p>
+                          <p className="font-heading font-semibold text-foreground">8147850160@upi</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Open <span className="font-semibold text-foreground">Google Pay, PhonePe, Paytm</span> or any UPI app to scan & pay
+                        </p>
                       </div>
                     )}
 
-                    <p className="text-xs text-muted-foreground mb-6">
-                      {paymentMethod === "upi" ? "Open any UPI app to scan and pay" : "Your card details are encrypted and secure"}
-                    </p>
+                    {paymentMethod === "card" && (
+                      <div className="bg-background rounded-xl p-6 mb-4 space-y-4 text-left">
+                        <div>
+                          <label className="text-xs font-medium text-muted-foreground mb-1 block">Cardholder Name</label>
+                          <input
+                            placeholder="John Doe"
+                            value={cardName}
+                            onChange={(e) => setCardName(e.target.value)}
+                            className="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-muted-foreground mb-1 block">Card Number</label>
+                          <input
+                            placeholder="1234 5678 9012 3456"
+                            value={cardNumber}
+                            onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, "").slice(0, 16))}
+                            className="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all font-mono tracking-wider"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground mb-1 block">Expiry</label>
+                            <input
+                              placeholder="MM/YY"
+                              value={cardExpiry}
+                              onChange={(e) => setCardExpiry(e.target.value.slice(0, 5))}
+                              className="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground mb-1 block">CVV</label>
+                            <input
+                              placeholder="•••"
+                              type="password"
+                              value={cardCvv}
+                              onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                              className="w-full px-4 py-3 rounded-lg border border-input bg-card text-foreground text-sm outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                            />
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          🔒 Your card details are encrypted and secure
+                        </p>
+                      </div>
+                    )}
+
+                    {paymentMethod === "cod" && (
+                      <div className="bg-background rounded-xl p-6 mb-4 text-center">
+                        <Package className="h-16 w-16 text-primary mx-auto mb-4" />
+                        <p className="text-foreground font-medium mb-2">Pay ₹{totalPrice.toLocaleString()} on delivery</p>
+                        <p className="text-xs text-muted-foreground">Cash or UPI accepted at doorstep</p>
+                      </div>
+                    )}
 
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handlePaymentComplete}
-                      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-heading font-semibold text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-heading font-semibold text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-6"
                     >
                       <Zap className="h-5 w-5" />
-                      {paymentMethod === "upi" ? "I've Completed Payment" : `Pay ₹${totalPrice.toLocaleString()}`}
+                      {paymentMethod === "upi"
+                        ? "I've Completed UPI Payment"
+                        : paymentMethod === "card"
+                        ? `Pay ₹${totalPrice.toLocaleString()}`
+                        : "Place COD Order"}
                     </motion.button>
                   </motion.div>
                 ) : (
@@ -200,7 +261,7 @@ const Checkout = () => {
                 </h2>
                 <div className="space-y-3">
                   {[
-                    { id: "upi", label: "UPI / QR Code Payment", icon: Smartphone, desc: "Scan QR code with any UPI app" },
+                    { id: "upi", label: "UPI / QR Code Payment", icon: Smartphone, desc: "Scan QR code with any UPI app — Pay to 8147850160" },
                     { id: "card", label: "Credit / Debit Card", icon: CreditCard, desc: "Visa, Mastercard, RuPay" },
                     { id: "cod", label: "Cash on Delivery", icon: Package, desc: "Pay when you receive" },
                   ].map((method) => (
@@ -225,10 +286,9 @@ const Checkout = () => {
               </button>
             </form>
 
-            {/* Order summary */}
             <div className="bg-card border border-border rounded-xl p-6 h-fit sticky top-32">
               <h2 className="font-heading font-semibold text-lg text-card-foreground mb-4">Order Summary</h2>
-              <div className="space-y-3 mb-4">
+              <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
                 {items.map((item) => (
                   <div key={item.product.id} className="flex gap-3 items-center">
                     <img src={item.product.image} alt={item.product.name} className="w-12 h-12 rounded-lg object-cover" />
