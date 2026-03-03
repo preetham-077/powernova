@@ -1,28 +1,82 @@
-import { Star, ShoppingCart, Clock } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Star, ShoppingCart, Clock, Plus, Minus, Check } from "lucide-react";
 import { Product, useCart } from "@/context/CartContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 
 const ProductCard = ({ product, index }: { product: Product; index: number }) => {
-  const { addToCart } = useCart();
+  const { addToCart, items, updateQuantity, removeFromCart } = useCart();
+  const [hoveredImgIdx, setHoveredImgIdx] = useState(0);
+  const [justAdded, setJustAdded] = useState(false);
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
+
+  const cartItem = items.find((i) => i.product.id === product.id);
+  const quantity = cartItem?.quantity || 0;
+  const displayImages = product.images?.length ? product.images : [product.image];
+
+  // Cycle images on hover
+  useEffect(() => {
+    if (displayImages.length <= 1) return;
+    let interval: NodeJS.Timeout;
+    return () => clearInterval(interval);
+  }, [displayImages.length]);
+
+  const handleAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product);
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 800);
+  };
+
+  const handleIncrement = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    updateQuantity(product.id, quantity + 1);
+  };
+
+  const handleDecrement = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (quantity <= 1) removeFromCart(product.id);
+    else updateQuantity(product.id, quantity - 1);
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ delay: index * 0.03 }}
       className="group bg-card rounded-xl border border-border overflow-hidden hover:shadow-card-hover hover:border-primary/20 transition-all duration-300"
+      onMouseEnter={() => {
+        if (displayImages.length > 1) {
+          const cycle = setInterval(() => {
+            setHoveredImgIdx((prev) => (prev + 1) % displayImages.length);
+          }, 1200);
+          (window as any).__cardCycle = cycle;
+        }
+      }}
+      onMouseLeave={() => {
+        clearInterval((window as any).__cardCycle);
+        setHoveredImgIdx(0);
+      }}
     >
       <Link to={`/product/${product.id}`} className="block relative overflow-hidden">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500"
-          loading="lazy"
-        />
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={hoveredImgIdx}
+            src={displayImages[hoveredImgIdx]}
+            alt={product.name}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-full h-52 object-cover"
+            loading="lazy"
+          />
+        </AnimatePresence>
         {product.badge && (
           <span className="absolute top-3 left-3 badge-deal text-xs font-bold px-2.5 py-1 rounded-md">
             {product.badge}
@@ -32,6 +86,14 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
           <Clock className="h-3 w-3 text-primary" />
           {product.deliveryTime}
         </div>
+        {/* Image dots */}
+        {displayImages.length > 1 && (
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+            {displayImages.map((_, i) => (
+              <span key={i} className={`w-1.5 h-1.5 rounded-full transition-colors ${i === hoveredImgIdx ? 'bg-primary' : 'bg-card/60'}`} />
+            ))}
+          </div>
+        )}
       </Link>
 
       <div className="p-4">
@@ -62,17 +124,37 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
             )}
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={(e) => {
-              e.preventDefault();
-              addToCart(product);
-            }}
-            className="p-2.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-          >
-            <ShoppingCart className="h-4 w-4" />
-          </motion.button>
+          {/* Zepto-style add/stepper button */}
+          <AnimatePresence mode="wait">
+            {quantity === 0 ? (
+              <motion.button
+                key="add"
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleAdd}
+                className="p-2.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity relative"
+              >
+                {justAdded ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
+              </motion.button>
+            ) : (
+              <motion.div
+                key="stepper"
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                className="flex items-center gap-0 rounded-lg overflow-hidden border-2 border-primary"
+              >
+                <button onClick={handleDecrement} className="p-1.5 bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="px-3 text-sm font-heading font-bold text-primary">{quantity}</span>
+                <button onClick={handleIncrement} className="p-1.5 bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                  <Plus className="h-4 w-4" />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </motion.div>

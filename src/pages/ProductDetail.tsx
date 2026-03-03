@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { products } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { Star, Clock, ShoppingCart, ArrowLeft, Zap, Shield, RotateCcw, Tag } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
@@ -12,6 +13,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const product = products.find((p) => p.id === id);
+  const [selectedImg, setSelectedImg] = useState(0);
 
   if (!product) {
     return (
@@ -21,6 +23,7 @@ const ProductDetail = () => {
     );
   }
 
+  const displayImages = product.images?.length ? product.images : [product.image];
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
@@ -41,14 +44,45 @@ const ProductDetail = () => {
         </Link>
 
         <div className="grid md:grid-cols-2 gap-10">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative">
-            <img src={product.image} alt={product.name} className="w-full rounded-2xl object-cover aspect-square bg-card" />
-            {product.badge && (
-              <span className="absolute top-4 left-4 badge-deal text-sm font-bold px-3 py-1.5 rounded-lg">
-                {product.badge}
-              </span>
+          {/* Image Gallery */}
+          <div className="space-y-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative rounded-2xl overflow-hidden bg-card">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={selectedImg}
+                  src={displayImages[selectedImg]}
+                  alt={product.name}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full aspect-square object-cover"
+                />
+              </AnimatePresence>
+              {product.badge && (
+                <span className="absolute top-4 left-4 badge-deal text-sm font-bold px-3 py-1.5 rounded-lg">
+                  {product.badge}
+                </span>
+              )}
+            </motion.div>
+
+            {/* Thumbnail strip */}
+            {displayImages.length > 1 && (
+              <div className="flex gap-3 overflow-x-auto pb-1">
+                {displayImages.map((imgUrl, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedImg(i)}
+                    className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+                      i === selectedImg ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <img src={imgUrl} alt={`${product.name} view ${i + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
             )}
-          </motion.div>
+          </div>
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
             <h1 className="text-3xl font-heading font-bold text-foreground mb-3">{product.name}</h1>

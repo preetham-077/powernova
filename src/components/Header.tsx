@@ -1,12 +1,36 @@
-import { Search, ShoppingCart, User, MapPin, Menu, Zap } from "lucide-react";
+import { Search, ShoppingCart, User, MapPin, Menu, Zap, X, ShoppingBag, Percent } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { products } from "@/data/products";
 
 const Header = () => {
   const { totalItems, setIsCartOpen } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    return products
+      .filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+      .slice(0, 6);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const navCategories = ["All", "Smartphones", "Laptops", "Headphones", "Smartwatches", "Tablets", "Cameras", "Speakers", "Gaming", "TVs & Monitors", "Accessories"];
 
   return (
     <header className="sticky top-0 z-50">
@@ -31,7 +55,7 @@ const Header = () => {
           </div>
 
           {/* Search */}
-          <div className="hidden sm:flex flex-1 max-w-2xl mx-4">
+          <div className="hidden sm:flex flex-1 max-w-2xl mx-4 relative" ref={searchRef}>
             <div className="flex w-full rounded-lg overflow-hidden border-2 border-primary/50 focus-within:border-primary transition-colors">
               <input
                 type="text"
@@ -39,25 +63,70 @@ const Header = () => {
                 className="flex-1 px-4 py-2.5 text-sm bg-card text-card-foreground outline-none"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && searchResults.length > 0) {
+                    navigate(`/product/${searchResults[0].id}`);
+                    setSearchQuery("");
+                    setSearchFocused(false);
+                  }
+                }}
               />
               <button className="px-5 bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
                 <Search className="h-5 w-5" />
               </button>
             </div>
+
+            {/* Search dropdown */}
+            <AnimatePresence>
+              {searchFocused && searchResults.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg overflow-hidden z-50"
+                >
+                  {searchResults.map((product) => (
+                    <Link
+                      key={product.id}
+                      to={`/product/${product.id}`}
+                      onClick={() => { setSearchQuery(""); setSearchFocused(false); }}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors"
+                    >
+                      <img src={product.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-card-foreground line-clamp-1">{product.name}</p>
+                        <p className="text-xs text-primary font-heading font-semibold">₹{product.price.toLocaleString()}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Right actions */}
           <div className="flex items-center gap-4">
             {/* Founder credit */}
-            <div className="hidden lg:block text-right">
-              <p className="text-[10px] uppercase tracking-widest text-nav-foreground/40">Founder</p>
-              <p className="text-xs font-heading font-semibold text-primary">CHANDAN & PREETHAM</p>
+            <div className="hidden lg:flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-lg px-3 py-1.5">
+              <span className="text-[10px] uppercase tracking-widest text-nav-foreground/50">Founder</span>
+              <span className="text-xs font-heading font-bold text-primary">CHANDAN & PREETHAM</span>
             </div>
+
+            <Link to="/?category=deals" className="hidden md:flex items-center gap-1 text-nav-foreground/70 hover:text-nav-foreground transition-colors text-sm">
+              <Percent className="h-4 w-4 text-primary" />
+              <span className="font-medium">Deals</span>
+            </Link>
 
             <button className="hidden md:flex items-center gap-1 text-nav-foreground/70 hover:text-nav-foreground transition-colors text-sm">
               <User className="h-5 w-5" />
               <span className="font-medium">Account</span>
             </button>
+
+            <Link to="/checkout" className="hidden md:flex items-center gap-1 text-nav-foreground/70 hover:text-nav-foreground transition-colors text-sm">
+              <ShoppingBag className="h-4 w-4" />
+              <span className="font-medium">Orders</span>
+            </Link>
 
             <button
               onClick={() => setIsCartOpen(true)}
@@ -78,8 +147,8 @@ const Header = () => {
               </AnimatePresence>
             </button>
 
-            <button className="sm:hidden text-nav-foreground">
-              <Menu className="h-6 w-6" />
+            <button className="sm:hidden text-nav-foreground" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
@@ -89,18 +158,66 @@ const Header = () => {
       <div className="bg-secondary border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-6 py-2 overflow-x-auto scrollbar-none text-sm">
-            {["All", "Smartphones", "Laptops", "Headphones", "Smartwatches", "Tablets", "Cameras", "Speakers", "Gaming", "Deals"].map((cat) => (
-              <Link
-                key={cat}
-                to={cat === "All" ? "/" : `/?category=${cat.toLowerCase()}`}
-                className="text-secondary-foreground/80 hover:text-primary whitespace-nowrap transition-colors font-medium"
-              >
-                {cat}
-              </Link>
-            ))}
+            {navCategories.map((cat) => {
+              const slug = cat === "All" ? "/" : cat === "TVs & Monitors" ? "/?category=tvs" : `/?category=${cat.toLowerCase()}`;
+              return (
+                <Link
+                  key={cat}
+                  to={slug}
+                  className="text-secondary-foreground/80 hover:text-primary whitespace-nowrap transition-colors font-medium"
+                >
+                  {cat}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
+
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="sm:hidden bg-card border-b border-border overflow-hidden"
+          >
+            <div className="p-4 space-y-3">
+              <div className="flex rounded-lg overflow-hidden border border-border">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className="flex-1 px-4 py-2 text-sm bg-background text-foreground outline-none"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button className="px-4 bg-primary text-primary-foreground">
+                  <Search className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {navCategories.map((cat) => {
+                  const slug = cat === "All" ? "/" : cat === "TVs & Monitors" ? "/?category=tvs" : `/?category=${cat.toLowerCase()}`;
+                  return (
+                    <Link
+                      key={cat}
+                      to={slug}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-sm text-card-foreground font-medium px-3 py-2 rounded-lg bg-muted hover:bg-primary/10 transition-colors"
+                    >
+                      {cat}
+                    </Link>
+                  );
+                })}
+              </div>
+              <div className="pt-2 border-t border-border text-center">
+                <p className="text-xs text-muted-foreground">Founded by <span className="text-primary font-semibold">CHANDAN & PREETHAM</span></p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };
