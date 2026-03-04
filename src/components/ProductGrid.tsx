@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { products } from "@/data/products";
+import { products, categories } from "@/data/products";
 import ProductCard from "./ProductCard";
 import { motion } from "framer-motion";
 import { Tag, ChevronDown, ArrowUpDown } from "lucide-react";
@@ -42,10 +42,14 @@ const ProductGrid = () => {
   const dealProducts = products.filter((p) => {
     if (!p.originalPrice) return false;
     const discount = Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100);
-    return discount >= 25;
-  }).slice(0, 6);
+    return discount >= 35;
+  }).slice(0, 8);
 
   const visibleProducts = filteredProducts.slice(0, visibleCount);
+
+  const categoryName = categoryFilter
+    ? categories.find(c => c.id === categoryFilter)?.name || categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1)
+    : null;
 
   return (
     <>
@@ -57,7 +61,7 @@ const ProductGrid = () => {
               <Tag className="h-6 w-6 text-primary" />
               <h2 className="text-2xl font-heading font-bold text-foreground">🔥 Today's Hot Deals</h2>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
               {dealProducts.map((product, i) => (
                 <ProductCard key={`deal-${product.id}`} product={product} index={i} />
               ))}
@@ -71,9 +75,9 @@ const ProductGrid = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
             <h2 className="text-2xl font-heading font-bold text-foreground">
-              {categoryFilter
-                ? `${categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1)} (${filteredProducts.length})`
-                : `All Electronics (${filteredProducts.length} products)`}
+              {categoryName
+                ? `${categoryName} (${filteredProducts.length})`
+                : `All Products (${filteredProducts.length})`}
             </h2>
 
             {/* Sort dropdown */}

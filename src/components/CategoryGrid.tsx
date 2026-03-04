@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { categories } from "@/data/products";
+import { Link } from "react-router-dom";
 
 const CategoryGrid = () => {
   return (
@@ -8,19 +9,23 @@ const CategoryGrid = () => {
         <h2 className="text-2xl font-heading font-bold text-foreground mb-8">
           Shop by Category
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-3">
           {categories.map((cat, i) => (
-            <motion.button
+            <Link
               key={cat.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              whileHover={{ y: -4 }}
-              className="flex flex-col items-center gap-3 p-4 rounded-xl bg-card border border-border hover:shadow-card-hover hover:border-primary/30 transition-all duration-300 cursor-pointer"
+              to={`/?category=${cat.id}`}
             >
-              <span className="text-3xl">{cat.icon}</span>
-              <span className="text-xs font-medium text-card-foreground text-center">{cat.name}</span>
-            </motion.button>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.03 }}
+                whileHover={{ y: -4 }}
+                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-card border border-border hover:shadow-card-hover hover:border-primary/30 transition-all duration-300 cursor-pointer"
+              >
+                <span className="text-2xl">{cat.icon}</span>
+                <span className="text-[11px] font-medium text-card-foreground text-center leading-tight">{cat.name}</span>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </div>
