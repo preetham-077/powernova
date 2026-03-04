@@ -1,9 +1,9 @@
-import { Search, ShoppingCart, User, MapPin, Menu, Zap, X, ShoppingBag, Percent } from "lucide-react";
+import { Search, ShoppingCart, User, MapPin, Menu, Zap, X, ShoppingBag, Percent, Coffee } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { products } from "@/data/products";
+import { products, categories } from "@/data/products";
 
 const Header = () => {
   const { totalItems, setIsCartOpen } = useCart();
@@ -16,8 +16,8 @@ const Header = () => {
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     return products
-      .filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
-      .slice(0, 6);
+      .filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.category.toLowerCase().includes(searchQuery.toLowerCase()))
+      .slice(0, 8);
   }, [searchQuery]);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const navCategories = ["All", "Smartphones", "Laptops", "Headphones", "Smartwatches", "Tablets", "Cameras", "Speakers", "Gaming", "TVs & Monitors", "Accessories"];
+  const navCategories = ["All", ...categories.map(c => c.name)];
 
   return (
     <header className="sticky top-0 z-50">
@@ -59,7 +59,7 @@ const Header = () => {
             <div className="flex w-full rounded-lg overflow-hidden border-2 border-primary/50 focus-within:border-primary transition-colors">
               <input
                 type="text"
-                placeholder="Search smartphones, laptops, gadgets..."
+                placeholder="Search electronics, groceries, clothes, shoes..."
                 className="flex-1 px-4 py-2.5 text-sm bg-card text-card-foreground outline-none"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -84,7 +84,7 @@ const Header = () => {
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
-                  className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg overflow-hidden z-50"
+                  className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg overflow-hidden z-50 max-h-80 overflow-y-auto"
                 >
                   {searchResults.map((product) => (
                     <Link
@@ -96,8 +96,9 @@ const Header = () => {
                       <img src={product.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-card-foreground line-clamp-1">{product.name}</p>
-                        <p className="text-xs text-primary font-heading font-semibold">₹{product.price.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">{categories.find(c => c.id === product.category)?.name}</p>
                       </div>
+                      <span className="text-xs text-primary font-heading font-semibold">₹{product.price.toLocaleString()}</span>
                     </Link>
                   ))}
                 </motion.div>
@@ -106,12 +107,17 @@ const Header = () => {
           </div>
 
           {/* Right actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* Founder credit */}
             <div className="hidden lg:flex items-center gap-2 bg-primary/15 border border-primary/30 rounded-lg px-3 py-1.5">
               <span className="text-[10px] uppercase tracking-widest text-nav-foreground/50">Founder</span>
               <span className="text-xs font-heading font-bold text-primary">CHANDAN & PREETHAM</span>
             </div>
+
+            <Link to="/?category=cafe" className="hidden md:flex items-center gap-1 text-nav-foreground/70 hover:text-nav-foreground transition-colors text-sm">
+              <Coffee className="h-4 w-4 text-primary" />
+              <span className="font-medium">Cafe</span>
+            </Link>
 
             <Link to="/?category=deals" className="hidden md:flex items-center gap-1 text-nav-foreground/70 hover:text-nav-foreground transition-colors text-sm">
               <Percent className="h-4 w-4 text-primary" />
@@ -154,17 +160,18 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Category bar */}
+      {/* Category bar - scrollable */}
       <div className="bg-secondary border-b border-border">
         <div className="container mx-auto px-4">
-          <div className="flex items-center gap-6 py-2 overflow-x-auto scrollbar-none text-sm">
+          <div className="flex items-center gap-4 py-2 overflow-x-auto scrollbar-none text-sm">
             {navCategories.map((cat) => {
-              const slug = cat === "All" ? "/" : cat === "TVs & Monitors" ? "/?category=tvs" : `/?category=${cat.toLowerCase()}`;
+              const catObj = categories.find(c => c.name === cat);
+              const slug = cat === "All" ? "/" : `/?category=${catObj?.id || cat.toLowerCase()}`;
               return (
                 <Link
                   key={cat}
                   to={slug}
-                  className="text-secondary-foreground/80 hover:text-primary whitespace-nowrap transition-colors font-medium"
+                  className="text-secondary-foreground/80 hover:text-primary whitespace-nowrap transition-colors font-medium text-xs"
                 >
                   {cat}
                 </Link>
@@ -196,15 +203,16 @@ const Header = () => {
                   <Search className="h-4 w-4" />
                 </button>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
                 {navCategories.map((cat) => {
-                  const slug = cat === "All" ? "/" : cat === "TVs & Monitors" ? "/?category=tvs" : `/?category=${cat.toLowerCase()}`;
+                  const catObj = categories.find(c => c.name === cat);
+                  const slug = cat === "All" ? "/" : `/?category=${catObj?.id || cat.toLowerCase()}`;
                   return (
                     <Link
                       key={cat}
                       to={slug}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-sm text-card-foreground font-medium px-3 py-2 rounded-lg bg-muted hover:bg-primary/10 transition-colors"
+                      className="text-xs text-card-foreground font-medium px-2 py-2 rounded-lg bg-muted hover:bg-primary/10 transition-colors text-center"
                     >
                       {cat}
                     </Link>
