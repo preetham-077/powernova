@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
+import CustomerHelp from "./components/CustomerHelp";
 
 const queryClient = new QueryClient();
 
