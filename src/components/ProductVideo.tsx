@@ -2,17 +2,25 @@ import { useState } from "react";
 import { Play, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Working YouTube product review/demo videos (verified embeddable)
 const DEMO_VIDEOS: Record<string, string> = {
-  smartphones: "https://www.youtube.com/embed/ZJGh164OjVU",
-  laptops: "https://www.youtube.com/embed/hU7oHk3fNbA",
-  headphones: "https://www.youtube.com/embed/a1EbU7xBIcE",
-  smartwatches: "https://www.youtube.com/embed/hmKshpLXnxc",
-  tablets: "https://www.youtube.com/embed/UB8-oV2V9GY",
-  cameras: "https://www.youtube.com/embed/9WQM263bVEU",
-  speakers: "https://www.youtube.com/embed/6-FUJEplbkE",
-  gaming: "https://www.youtube.com/embed/RkC0l4iekYo",
-  shoes: "https://www.youtube.com/embed/Lnj4C8a4plc",
-  default: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+  smartphones: "https://www.youtube.com/embed/in5RM9LjpMU",
+  laptops: "https://www.youtube.com/embed/KnGY2dAKsQ0",
+  headphones: "https://www.youtube.com/embed/PvQ0gQv1GjE",
+  smartwatches: "https://www.youtube.com/embed/CAxS_GkYPnA",
+  tablets: "https://www.youtube.com/embed/8Ajbj8BKXWU",
+  cameras: "https://www.youtube.com/embed/se21WfKScXY",
+  speakers: "https://www.youtube.com/embed/oJ2sQ0gMDds",
+  gaming: "https://www.youtube.com/embed/vr0qNXmkUJ8",
+  shoes: "https://www.youtube.com/embed/WnqLqAYCnHE",
+  groceries: "https://www.youtube.com/embed/1MIbaGwhXTc",
+  clothes: "https://www.youtube.com/embed/lPJVi797Uy0",
+  "girls-wear": "https://www.youtube.com/embed/lPJVi797Uy0",
+  underwear: "https://www.youtube.com/embed/lPJVi797Uy0",
+  skincare: "https://www.youtube.com/embed/OrElyY7MFVs",
+  "baby-products": "https://www.youtube.com/embed/ZCB-0GBOnFU",
+  cafe: "https://www.youtube.com/embed/2FsRMh2Frp4",
+  default: "https://www.youtube.com/embed/in5RM9LjpMU",
 };
 
 const ProductVideo = ({ category, productName }: { category: string; productName: string }) => {
@@ -42,7 +50,7 @@ const ProductVideo = ({ category, productName }: { category: string; productName
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/70 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
             onClick={() => setShowVideo(false)}
           >
             <motion.div
@@ -50,18 +58,18 @@ const ProductVideo = ({ category, productName }: { category: string; productName
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-3xl mx-4 aspect-video rounded-2xl overflow-hidden bg-foreground shadow-2xl"
+              className="relative w-full max-w-3xl mx-4 aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl"
             >
               <button
                 onClick={() => setShowVideo(false)}
-                className="absolute top-3 right-3 z-10 p-2 bg-foreground/80 text-primary-foreground rounded-full hover:bg-foreground transition-colors"
+                className="absolute top-3 right-3 z-10 p-2 bg-black/70 text-white rounded-full hover:bg-black/90 transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
               <iframe
-                src={`${videoUrl}?autoplay=1`}
-                className="w-full h-full"
-                allow="autoplay; encrypted-media"
+                src={`${videoUrl}?autoplay=1&rel=0`}
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 title={`${productName} demo video`}
               />
