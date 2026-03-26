@@ -141,7 +141,7 @@ const ProductDetail = () => {
               </motion.button>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-4 mb-6">
               {[
                 { icon: Zap, label: "Fast Delivery" },
                 { icon: Shield, label: "Genuine Product" },
@@ -153,6 +153,9 @@ const ProductDetail = () => {
                 </div>
               ))}
             </div>
+
+            {/* Product Video */}
+            <ProductVideo category={product.category} productName={product.name} />
           </motion.div>
         </div>
       </main>
