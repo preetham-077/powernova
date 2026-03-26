@@ -6,79 +6,79 @@
 
 @layer base {
   :root {
-    --background: 45 20% 92%;
-    --foreground: 40 10% 15%;
+    --background: 263 30% 92%;
+    --foreground: 263 15% 12%;
 
-    --card: 45 18% 96%;
-    --card-foreground: 40 10% 15%;
+    --card: 263 25% 96%;
+    --card-foreground: 263 15% 12%;
 
-    --popover: 45 18% 96%;
-    --popover-foreground: 40 10% 15%;
+    --popover: 263 25% 96%;
+    --popover-foreground: 263 15% 12%;
 
-    --primary: 24 100% 50%;
+    --primary: 263 70% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 8% 25%;
-    --secondary-foreground: 45 15% 92%;
+    --secondary: 263 15% 25%;
+    --secondary-foreground: 263 20% 95%;
 
-    --muted: 42 12% 86%;
-    --muted-foreground: 40 8% 45%;
+    --muted: 263 15% 86%;
+    --muted-foreground: 263 10% 45%;
 
-    --accent: 35 100% 55%;
-    --accent-foreground: 40 10% 12%;
+    --accent: 280 70% 60%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 42 12% 82%;
-    --input: 42 12% 82%;
-    --ring: 24 100% 50%;
+    --border: 263 15% 82%;
+    --input: 263 15% 82%;
+    --ring: 263 70% 58%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --nav-bg: 40 12% 18%;
-    --nav-foreground: 45 15% 95%;
-    --hero-gradient: linear-gradient(135deg, hsl(40, 12%, 15%) 0%, hsl(40, 15%, 22%) 50%, hsl(24, 70%, 28%) 100%);
-    --card-hover-shadow: 0 12px 40px -8px hsl(24 100% 50% / 0.18);
-    --glow-orange: 0 0 30px hsl(24 100% 50% / 0.3);
+    --nav-bg: 263 25% 15%;
+    --nav-foreground: 263 15% 95%;
+    --hero-gradient: linear-gradient(135deg, hsl(263, 25%, 12%) 0%, hsl(263, 30%, 20%) 50%, hsl(280, 50%, 30%) 100%);
+    --card-hover-shadow: 0 12px 40px -8px hsl(263 70% 58% / 0.18);
+    --glow-purple: 0 0 30px hsl(263 70% 58% / 0.3);
     --success: 145 63% 42%;
     --success-foreground: 0 0% 100%;
     --badge-deal: 0 84% 55%;
     --badge-deal-foreground: 0 0% 100%;
-    --offer-bg: 24 100% 50%;
+    --offer-bg: 263 70% 58%;
     --offer-foreground: 0 0% 100%;
 
-    --sidebar-background: 45 18% 96%;
+    --sidebar-background: 263 25% 96%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 42 12% 82%;
-    --sidebar-ring: 24 100% 50%;
+    --sidebar-border: 263 15% 82%;
+    --sidebar-ring: 263 70% 58%;
   }
 
   .dark {
-    --background: 40 8% 10%;
-    --foreground: 45 12% 92%;
-    --card: 40 10% 14%;
-    --card-foreground: 45 12% 92%;
-    --popover: 40 10% 14%;
-    --popover-foreground: 45 12% 92%;
-    --primary: 24 100% 50%;
+    --background: 263 15% 8%;
+    --foreground: 263 15% 92%;
+    --card: 263 15% 12%;
+    --card-foreground: 263 15% 92%;
+    --popover: 263 15% 12%;
+    --popover-foreground: 263 15% 92%;
+    --primary: 263 70% 58%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 40 10% 20%;
-    --secondary-foreground: 45 12% 92%;
-    --muted: 40 8% 20%;
-    --muted-foreground: 40 8% 55%;
-    --accent: 35 100% 55%;
+    --secondary: 263 15% 20%;
+    --secondary-foreground: 263 15% 92%;
+    --muted: 263 10% 20%;
+    --muted-foreground: 263 10% 55%;
+    --accent: 280 70% 60%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 45 12% 95%;
-    --border: 40 8% 22%;
-    --input: 40 8% 22%;
-    --ring: 24 100% 50%;
+    --destructive-foreground: 263 15% 95%;
+    --border: 263 10% 22%;
+    --input: 263 10% 22%;
+    --ring: 263 70% 58%;
   }
 }
 
@@ -97,11 +97,11 @@
 @layer utilities {
   .text-gradient-brand {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(24, 100%, 50%), hsl(35, 100%, 55%));
+    background-image: linear-gradient(135deg, hsl(263, 70%, 58%), hsl(280, 70%, 60%));
   }
   .text-gradient-stylish {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(24, 100%, 55%), hsl(45, 100%, 60%), hsl(24, 100%, 50%));
+    background-image: linear-gradient(135deg, hsl(263, 70%, 60%), hsl(300, 60%, 65%), hsl(263, 70%, 55%));
   }
   .bg-nav {
     background-color: hsl(var(--nav-bg));
@@ -113,8 +113,11 @@
   .shadow-card-hover {
     box-shadow: var(--card-hover-shadow);
   }
+  .glow-purple {
+    box-shadow: var(--glow-purple);
+  }
   .glow-orange {
-    box-shadow: var(--glow-orange);
+    box-shadow: var(--glow-purple);
   }
   .badge-deal {
     background-color: hsl(var(--badge-deal));

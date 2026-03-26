@@ -110,11 +110,11 @@ const Checkout = () => {
                     {paymentMethod === "upi" && (
                       <div className="space-y-4">
                         <div className="bg-background rounded-xl p-6 inline-block">
-                          <QRCodeSVG
+                         <QRCodeSVG
                             value={upiQrValue}
                             size={240}
-                            bgColor="hsl(45, 20%, 92%)"
-                            fgColor="hsl(40, 10%, 15%)"
+                            bgColor="#ebe5f0"
+                            fgColor="#1c1424"
                             level="H"
                             includeMargin
                           />
