@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { products } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { Star, Clock, ShoppingCart, ArrowLeft, Zap, Shield, RotateCcw, Tag } from "lucide-react";
+import ProductVideo from "@/components/ProductVideo";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
